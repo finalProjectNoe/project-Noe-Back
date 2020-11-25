@@ -141,7 +141,8 @@ contract Noe is ERC721 {
             userAddress: _userAddress,
             postalAddress: _postalAddress,
             postalCode: _postalCode,
-            city: _city
+            city: _city,
+            isMember: true
         });
 
         registeredMembers[msg.sender] = true;
@@ -166,7 +167,8 @@ contract Noe is ERC721 {
             postalAddress: _postalAddress,
             postalCode: _postalCode,
             city: _city,
-            diploma: false
+            diploma: false,
+            isVeterinary: false
         });
 
         registeredVeterinary[msg.sender] = true;
@@ -178,6 +180,7 @@ contract Noe is ERC721 {
 
     function approveVeterinary(address _addr) public isSuperAdmin returns (bool) {
         veterinary[_addr].diploma = true;
+        veterinary[_addr].isVeterinary = true;
 
         approveVet[msg.sender] = true;
 
