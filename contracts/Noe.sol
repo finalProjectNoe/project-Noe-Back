@@ -6,6 +6,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract Noe is ERC721 {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
     // Adresse de la personne qui déploie
 
     address payable private _superAdmin;
@@ -15,6 +18,10 @@ contract Noe is ERC721 {
     constructor(address payable superAdmin) public ERC721("Noe", "NOE") {
         _superAdmin = superAdmin;
     }
+
+    // Enum
+
+    enum Animals { dog, cat, ferret }
 
     // Structs
 
@@ -33,11 +40,12 @@ contract Noe is ERC721 {
     // Structure animales
 
     struct Animal {
-        uint256 animalId;
+
         string name;
         uint8 dateBirth;
         string sexe;
-        string vaccin;
+        bool vaccin;
+        Animals animals;
     }
 
     // Structure vétérinaire
@@ -57,6 +65,8 @@ contract Noe is ERC721 {
 
     uint256 public animalsCount;
 
+    mapping(uint256 => Animal) private _animal;
+
     mapping(address => Member) public member;
 
     mapping(address => Animal) public animal;
@@ -68,10 +78,6 @@ contract Noe is ERC721 {
     mapping(address => bool) public registeredVeterinary;
 
     mapping(address => bool) public approveVet;
-
-    // Enum
-
-    enum Animals { dog, cat, ferret }
 
     // Fonction Modifier
 
@@ -192,4 +198,17 @@ contract Noe is ERC721 {
     function connectionMember(address _addr) public isMember(_addr) {}
 
     function connectionVeterinary(address _addr) public isVeterinary(_addr) {}
+
+    function animalToken(address _member, Animal memory animal_) public isVeterinary(_addr) returns (uint256) {
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _mint(_member, newTokenId);
+        _animal[newTokenId] = animal_;
+        return newTokenId;
+    }
+    
+    function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
+        require(_exists(tokenId), "NOE: Animal query for no nexistent token");
+        return _animal[tokenId];
+    }
 }
