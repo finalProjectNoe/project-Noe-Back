@@ -21,7 +21,7 @@ contract Noe is ERC721 {
 
     // Enum
 
-    enum Animals { dog, cat, ferret }
+    enum Animals {dog, cat, ferret}
 
     // Structs
 
@@ -40,7 +40,6 @@ contract Noe is ERC721 {
     // Structure animales
 
     struct Animal {
-
         string name;
         uint8 dateBirth;
         string sexe;
@@ -91,21 +90,21 @@ contract Noe is ERC721 {
     // Check si le membre est enregistré
 
     modifier isMember(address _addr) {
-        require(member[_addr].isMember == true, "Vous n'étes pas membre");
+        require(member[_addr].isMember == true, "Vous n'êtes pas membre");
         _;
     }
 
     // Check si le vétérinaire est enregistré
 
     modifier isVeterinary(address _addr) {
-        require(veterinary[_addr].isVeterinary == true, "Vous n'étes pas vétérinaire");
+        require(veterinary[_addr].isVeterinary == true, "Vous n'êtes pas vétérinaire");
         _;
     }
 
     // Check si le member n'est enregisté
 
     modifier isRegistered() {
-        require(registeredMembers[msg.sender], "Vous n'étes pas enregisté");
+        require(registeredMembers[msg.sender], "Vous n'êtes pas enregistré");
         _;
     }
 
@@ -206,9 +205,17 @@ contract Noe is ERC721 {
         _animal[newTokenId] = animal_;
         return newTokenId;
     }
-    
+
     function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
-        require(_exists(tokenId), "NOE: Animal query for no nexistent token");
+        require(_exists(tokenId), "NOE: Animal query for no existant token");
         return _animal[tokenId];
+    }
+
+    function balanceOf(address _owner) public view returns (uint256 _balance) {
+        return ownerAnimalCount[_owner];
+    }
+
+    function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+        return animalToOwner[_tokenId];
     }
 }

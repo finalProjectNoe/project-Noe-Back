@@ -7,7 +7,13 @@
   "exports": {
     "./": "./src/"
   },
+  "scripts": {
+    "test": "npx mocha --exit --recursive"
+  },
   "devDependencies": {
+    "@openzeppelin/test-environment": "^0.1.6",
+    "@openzeppelin/test-helpers": "^0.5.9",
+    "chai": "^4.2.0",
     "eslint": "^7.14.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
@@ -15,6 +21,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
+    "mocha": "^8.2.1",
     "prettier": "^2.2.0",
     "prettier-plugin-solidity": "^1.0.0-beta.1",
     "solhint": "^3.3.2"
@@ -22,5 +29,6 @@
   "main": "index.js",
   "dependencies": {
     "@openzeppelin/contracts": "^3.2.0"
-  }
+  },
+  "repository": "https://github.com/finalProjectNoe/project-Noe-Back.git"
 }
