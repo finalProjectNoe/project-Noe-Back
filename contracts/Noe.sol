@@ -5,6 +5,9 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+/// @title Un contrat pour gérer la propriété d'animaux enregistré par des vétérinaires
+/// @author Théo Streed Nico Mika
+/// @notice Ce contrat permet d'enregistrer des vétérinaires et des membres et attitrer des animaux
 contract Noe is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -206,6 +209,7 @@ contract Noe is ERC721 {
         return newTokenId;
     }
 
+    //function tokenByIndex(uint256 _index) external view returns (uint256);
     function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
         require(_exists(tokenId), "NOE: Animal query for no existant token");
         return _animal[tokenId];
@@ -215,6 +219,7 @@ contract Noe is ERC721 {
         return ownerAnimalCount[_owner];
     }
 
+    //function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
     function ownerOf(uint256 _tokenId) public view returns (address _owner) {
         return animalToOwner[_tokenId];
     }
