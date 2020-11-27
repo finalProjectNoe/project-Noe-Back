@@ -5,9 +5,10 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-/// @title Un contrat pour gérer la propriété d'animaux enregistré par des vétérinaires
-/// @author Théo Streed Nico Mika
-/// @notice Ce contrat permet d'enregistrer des vétérinaires et des membres et attitrer des animaux
+/// @title Un contrat de passeport animaliers
+/// @author Théo, Streed, Nico, Mika
+/// @notice Ce contrat d'accosier des animaux à des utilisateurs via des vétérinaires 
+
 contract Noe is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -24,25 +25,24 @@ contract Noe is ERC721 {
 
     // Enum
 
-    enum Animals {dog, cat, ferret}
+    enum Animals { dog, cat, ferret }
 
     // Structs
 
     // Structure membres
 
     struct Member {
-        string firstName;
-        string lastName;
-        address userAddress;
-        string postalAddress;
-        uint256 postalCode;
-        string city;
+        address eth;
+        string name;
+        uint256 tel;
+        // nb token
         bool isMember;
     }
 
     // Structure animales
 
     struct Animal {
+
         string name;
         uint8 dateBirth;
         string sexe;
@@ -53,12 +53,9 @@ contract Noe is ERC721 {
     // Structure vétérinaire
 
     struct Veterinary {
-        string firstName;
-        string lastName;
-        address veterinaryAddress;
-        string postalAddress;
-        uint256 postalCode;
-        string city;
+        address ethVet;
+        string name;
+        uint256 tel;
         bool diploma;
         bool isVeterinary;
     }
@@ -93,21 +90,21 @@ contract Noe is ERC721 {
     // Check si le membre est enregistré
 
     modifier isMember(address _addr) {
-        require(member[_addr].isMember == true, "Vous n'êtes pas membre");
+        require(member[_addr].isMember == true, "Vous n'étes pas membre");
         _;
     }
 
     // Check si le vétérinaire est enregistré
 
     modifier isVeterinary(address _addr) {
-        require(veterinary[_addr].isVeterinary == true, "Vous n'êtes pas vétérinaire");
+        require(veterinary[_addr].isVeterinary == true, "Vous n'étes pas vétérinaire");
         _;
     }
 
     // Check si le member n'est enregisté
 
     modifier isRegistered() {
-        require(registeredMembers[msg.sender], "Vous n'êtes pas enregistré");
+        require(registeredMembers[msg.sender], "Vous n'étes pas enregisté");
         _;
     }
 
@@ -136,20 +133,14 @@ contract Noe is ERC721 {
     // Function
 
     function createMember(
-        string memory _firstName,
-        string memory _lastName,
-        address _userAddress,
-        string memory _postalAddress,
-        uint256 _postalCode,
-        string memory _city
+        address _eth,
+        string memory _name,
+        uint256 _tel
     ) public notAlreadyRegistered() returns (bool) {
         member[msg.sender] = Member({
-            firstName: _firstName,
-            lastName: _lastName,
-            userAddress: _userAddress,
-            postalAddress: _postalAddress,
-            postalCode: _postalCode,
-            city: _city,
+            eth: _eth,
+            name: _name,
+            tel: _tel,
             isMember: true
         });
 
@@ -161,22 +152,17 @@ contract Noe is ERC721 {
     }
 
     function createVeterinary(
-        string memory _firstName,
-        string memory _lastName,
-        address _veterinaryAddress,
-        string memory _postalAddress,
-        uint256 _postalCode,
-        string memory _city
+        address _ethVet,
+        string memory _name,
+        uint256 _tel
+
     ) public returns (bool) {
         veterinary[msg.sender] = Veterinary({
-            firstName: _firstName,
-            lastName: _lastName,
-            veterinaryAddress: _veterinaryAddress,
-            postalAddress: _postalAddress,
-            postalCode: _postalCode,
-            city: _city,
-            diploma: false,
-            isVeterinary: false
+        ethVet: _ethVet,
+        name: _name,
+        tel: _tel,
+        diploma: false,
+        isVeterinary: false
         });
 
         registeredVeterinary[msg.sender] = true;
@@ -201,26 +187,17 @@ contract Noe is ERC721 {
 
     function connectionVeterinary(address _addr) public isVeterinary(_addr) {}
 
-    function animalToken(address _member, Animal memory animal_) public isVeterinary(_addr) returns (uint256) {
+    function animalToken(address _member, Animal memory animal_) public returns (uint256) {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(_member, newTokenId);
         _animal[newTokenId] = animal_;
         return newTokenId;
     }
+    
 
-    //function tokenByIndex(uint256 _index) external view returns (uint256);
     function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
-        require(_exists(tokenId), "NOE: Animal query for no existant token");
+        require(_exists(tokenId), "NOE: Animal query for no nexistent token");
         return _animal[tokenId];
-    }
-
-    function balanceOf(address _owner) public view returns (uint256 _balance) {
-        return ownerAnimalCount[_owner];
-    }
-
-    //function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
-    function ownerOf(uint256 _tokenId) public view returns (address _owner) {
-        return animalToOwner[_tokenId];
     }
 }
