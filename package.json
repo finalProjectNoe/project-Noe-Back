@@ -28,7 +28,9 @@
   },
   "main": "index.js",
   "dependencies": {
-    "@openzeppelin/contracts": "^3.2.0"
+    "@openzeppelin/contracts": "^3.2.0",
+    "@truffle/hdwallet-provider": "^1.2.0",
+    "dotenv": "^8.2.0"
   },
   "repository": "https://github.com/finalProjectNoe/project-Noe-Back.git"
 }

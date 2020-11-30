@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 /// @title Un contrat de passeport animaliers
 /// @author Théo, Streed, Nico, Mika
-/// @notice Ce contrat d'accosier des animaux à des utilisateurs via des vétérinaires 
+/// @notice Ce contrat permet d'associer des animaux à des utilisateurs via des vétérinaires
 
 contract Noe is ERC721 {
     using Counters for Counters.Counter;
@@ -25,7 +25,7 @@ contract Noe is ERC721 {
 
     // Enum
 
-    enum Animals { dog, cat, ferret }
+    enum Animals {dog, cat, ferret}
 
     // Structs
 
@@ -42,7 +42,6 @@ contract Noe is ERC721 {
     // Structure animales
 
     struct Animal {
-
         string name;
         uint8 dateBirth;
         string sexe;
@@ -137,12 +136,7 @@ contract Noe is ERC721 {
         string memory _name,
         uint256 _tel
     ) public notAlreadyRegistered() returns (bool) {
-        member[msg.sender] = Member({
-            eth: _eth,
-            name: _name,
-            tel: _tel,
-            isMember: true
-        });
+        member[msg.sender] = Member({eth: _eth, name: _name, tel: _tel, isMember: true});
 
         registeredMembers[msg.sender] = true;
 
@@ -155,14 +149,13 @@ contract Noe is ERC721 {
         address _ethVet,
         string memory _name,
         uint256 _tel
-
     ) public returns (bool) {
         veterinary[msg.sender] = Veterinary({
-        ethVet: _ethVet,
-        name: _name,
-        tel: _tel,
-        diploma: false,
-        isVeterinary: false
+            ethVet: _ethVet,
+            name: _name,
+            tel: _tel,
+            diploma: false,
+            isVeterinary: false
         });
 
         registeredVeterinary[msg.sender] = true;
@@ -194,7 +187,6 @@ contract Noe is ERC721 {
         _animal[newTokenId] = animal_;
         return newTokenId;
     }
-    
 
     function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
         require(_exists(tokenId), "NOE: Animal query for no nexistent token");
