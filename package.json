@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "author": "TheophileBonifaceAchille <theophile.boniface@gmail.com>",
   "license": "MIT",
-  "type": "module",
   "exports": {
     "./": "./src/"
   },

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
-// pragma experimental ABIencoderV2;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -32,7 +32,6 @@ contract Noe is ERC721 {
     // Structure membres
 
     struct Member {
-        address eth;
         string name;
         uint256 tel;
         // nb token
@@ -52,7 +51,6 @@ contract Noe is ERC721 {
     // Structure vétérinaire
 
     struct Veterinary {
-        address ethVet;
         string name;
         uint256 tel;
         bool diploma;
@@ -67,15 +65,7 @@ contract Noe is ERC721 {
 
     mapping(address => Member) public member;
 
-    mapping(address => Animal) public animal;
-
     mapping(address => Veterinary) public veterinary;
-
-    mapping(address => bool) public registeredMembers;
-
-    mapping(address => bool) public registeredVeterinary;
-
-    mapping(address => bool) public approveVet;
 
     // Fonction Modifier
 
@@ -97,13 +87,6 @@ contract Noe is ERC721 {
 
     modifier isVeterinary(address _addr) {
         require(veterinary[_addr].isVeterinary == true, "Vous n'étes pas vétérinaire");
-        _;
-    }
-
-    // Check si le member n'est enregisté
-
-    modifier isRegistered() {
-        require(registeredMembers[msg.sender], "Vous n'étes pas enregisté");
         _;
     }
 
@@ -129,57 +112,37 @@ contract Noe is ERC721 {
 
     event VeterinaryApprove(address _address);
 
-    // Function
+    // Functions
 
-    function createMember(
-        address _eth,
-        string memory _name,
-        uint256 _tel
-    ) public notAlreadyRegistered() returns (bool) {
-        member[msg.sender] = Member({eth: _eth, name: _name, tel: _tel, isMember: true});
-
-        registeredMembers[msg.sender] = true;
+    /// Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
+    function createMember(string memory _name, uint256 _tel) public notAlreadyRegistered() returns (bool) {
+        member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender);
-
-        return registeredMembers[msg.sender];
     }
 
-    function createVeterinary(
-        address _ethVet,
-        string memory _name,
-        uint256 _tel
-    ) public returns (bool) {
-        veterinary[msg.sender] = Veterinary({
-            ethVet: _ethVet,
-            name: _name,
-            tel: _tel,
-            diploma: false,
-            isVeterinary: false
-        });
-
-        registeredVeterinary[msg.sender] = true;
+    /// Permet de créer un compte vétérinaire sous réserve de validation du diplôme
+    function createVeterinary(string memory _name, uint256 _tel) public returns (bool) {
+        veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: false});
 
         emit VeterinaryCreated(msg.sender);
-
-        return registeredVeterinary[msg.sender];
     }
 
+    /// Permet de valider le compte vétérinaire après vérification du diplôme
     function approveVeterinary(address _addr) public isSuperAdmin returns (bool) {
         veterinary[_addr].diploma = true;
         veterinary[_addr].isVeterinary = true;
 
-        approveVet[msg.sender] = true;
-
         emit VeterinaryApprove(msg.sender);
-
-        return approveVet[msg.sender];
     }
 
+    /// Permet de se connecter en tant que membre
     function connectionMember(address _addr) public isMember(_addr) {}
 
+    /// Permet de se connecter en tant que vétérinaire
     function connectionVeterinary(address _addr) public isVeterinary(_addr) {}
 
+    ///
     function animalToken(address _member, Animal memory animal_) public returns (uint256) {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
@@ -188,6 +151,7 @@ contract Noe is ERC721 {
         return newTokenId;
     }
 
+    /// Permet de retrouver un animal en fonction de son index
     function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
         require(_exists(tokenId), "NOE: Animal query for no nexistent token");
         return _animal[tokenId];
