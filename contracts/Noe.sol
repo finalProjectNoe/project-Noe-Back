@@ -42,7 +42,7 @@ contract Noe is ERC721 {
 
     struct Animal {
         string name;
-        uint8 dateBirth;
+        string dateBirth;
         string sexe;
         bool vaccin;
         Animals animals;
@@ -85,15 +85,8 @@ contract Noe is ERC721 {
 
     // Check si le vétérinaire est enregistré
 
-    modifier isVeterinary(address _addr) {
-        require(veterinary[_addr].isVeterinary == true, "Vous n'étes pas vétérinaire");
-        _;
-    }
-
-    // Check si le member est enregisté
-
-    modifier notAlreadyRegistered() {
-        require(!registeredMembers[msg.sender], "Vous étes deja enregisté");
+    modifier isVeterinary() {
+        require(veterinary[msg.sender].isVeterinary == true, "Vous n'étes pas vétérinaire");
         _;
     }
 
@@ -115,13 +108,13 @@ contract Noe is ERC721 {
     // Functions
 
     /// Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
-    function createMember(string memory _name, uint256 _tel) public notAlreadyRegistered() returns (bool) {
+    function createMember(string memory _name, uint256 _tel) public returns (bool) {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender);
     }
 
-    /// Permet de créer un compte vétérinaire sous réserve de validation du diplôme
+    /// Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin
     function createVeterinary(string memory _name, uint256 _tel) public returns (bool) {
         veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: false});
 
@@ -137,17 +130,25 @@ contract Noe is ERC721 {
     }
 
     /// Permet de se connecter en tant que membre
-    function connectionMember(address _addr) public isMember(_addr) {}
+    function connectionMember(address _addr, string memory _name) public isMember(_addr) {
+    }
 
     /// Permet de se connecter en tant que vétérinaire
-    function connectionVeterinary(address _addr) public isVeterinary(_addr) {}
+    function connectionVeterinary(address _addr, string memory _name) public isVeterinary() {}
 
     ///
-    function animalToken(address _member, Animal memory animal_) public returns (uint256) {
+    function animalToken(
+        address _member,
+        string memory _name,
+        string memory _dateBirth,
+        string memory _sexe,
+        bool _vaccin,
+        Animals animals_
+    ) public isVeterinary() returns (uint256) {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(_member, newTokenId);
-        _animal[newTokenId] = animal_;
+        _animal[newTokenId] = Animal({name: _name, dateBirth: _dateBirth, sexe: _sexe, vaccin: _vaccin, animals: animals_});
         return newTokenId;
     }
 
