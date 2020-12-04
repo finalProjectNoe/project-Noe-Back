@@ -27,7 +27,9 @@ contract Noe is ERC721 {
 
     event VeterinaryCreated(address _address); // Event pour la créaction d'un vétérinaire
 
-    event VeterinaryApprove(address _address); // Event qu'on vétérinaire approuve un vétérinaire
+    event VeterinaryApprove(address _address); // Event pour que superAdmin approuve un vétérinaire
+
+    event AnimalToken(address _address); // Event pour qu'un vétérinaire crée un animal
 
     struct Member { // Structure membres
         string name; // Nom du membre
@@ -50,7 +52,7 @@ contract Noe is ERC721 {
         bool isVeterinary; // False par defaut, il devient vétérinaire une fois que le super admin approuve
     }
 
-    uint256 public animalsCount; // Variable de statue pour compter le nombre d'animaux
+    uint256 public animalsCount; // Variable de statut pour compter le nombre d'animaux
 
     /// @dev Mapping de la struct Animal
     mapping(uint256 => Animal) private _animal;
@@ -100,7 +102,7 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
     /// @param _tel set le nom du téléphone dans la struct Member
-    function createMember(string memory _name, uint256 _tel) public {
+    function createMember(string memory _name, uint256 _tel) public onlyMember {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
@@ -127,8 +129,7 @@ contract Noe is ERC721 {
     /// @dev Permet de se connecter en tant que membre
     /// @param _addr de connexion du membre
     /// @param _name nom du membre
-    function connectionMember(address _addr, string memory _name) public onlyMember(_addr) {
-    }
+    function connectionMember(address _addr, string memory _name) public onlyMember(_addr) {}
 
     /// @dev Permet de se connecter en tant que vétérinaire
     /// @param _addr de connexion du vétérinaire
@@ -155,6 +156,7 @@ contract Noe is ERC721 {
         uint256 newTokenId = _tokenIds.current();
         _mint(_member, newTokenId);
         _animal[newTokenId] = Animal({name: _name, dateBirth: _dateBirth, sexe: _sexe, vaccin: _vaccin, animals: animals_});
+        emit AnimalToken(msg.sender); /// emit de l'event AnimalToken
         return newTokenId;
     }
 
