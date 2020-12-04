@@ -70,14 +70,14 @@ contract Noe is ERC721 {
     }
 
     // This modifer, vérifie si le membre est déjà enregistré
-    modifier onlyMember(address _addr) {
-        require(member[_addr].isMember == true, "Vous n'étes pas membre");
+    modifier onlyMember() {
+        require(member[msg.sender].isMember == true, "Vous n'étes pas membre");
         _;
     }
     
     // This modifer, vérifie si le membre n'est pas déjà enregistré
-    modifier onlyYetMember(address _addr) {
-        require(member[_addr].isMember == false, "Vous étes déjà membre");
+    modifier onlyYetMember() {
+        require(member[msg.sender].isMember == false, "Vous étes déjà membre");
         _;
     }
 
@@ -102,7 +102,7 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
     /// @param _tel set le nom du téléphone dans la struct Member
-    function createMember(string memory _name, uint256 _tel) public onlyMember {
+    function createMember(string memory _name, uint256 _tel) public onlyMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
@@ -129,7 +129,7 @@ contract Noe is ERC721 {
     /// @dev Permet de se connecter en tant que membre
     /// @param _addr de connexion du membre
     /// @param _name nom du membre
-    function connectionMember(address _addr, string memory _name) public onlyMember(_addr) {}
+    function connectionMember(address _addr, string memory _name) public onlyMember() {}
 
     /// @dev Permet de se connecter en tant que vétérinaire
     /// @param _addr de connexion du vétérinaire
