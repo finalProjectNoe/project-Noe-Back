@@ -10,14 +10,14 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 /// @notice Ce contrat permet d'associer des animaux à des utilisateurs via des vétérinaires
 
 contract Noe is ERC721 {
-    
     using Counters for Counters.Counter; // Utilisation du contract Counter d'openzeppelin importait en ligne 6
     Counters.Counter private _tokenIds; // Utilisation de la fonction Counter pour associer un _tokenIds
 
     address payable private _superAdmin; // Adresse de la personne qui déploie
 
     /// @notice Name and symbol of the non fungible token, as defined in ERC721.
-    constructor(address payable superAdmin) public ERC721("Noe", "NOE") { // Constucteur
+    constructor(address payable superAdmin) public ERC721("Noe", "NOE") {
+        // Constucteur
         _superAdmin = superAdmin;
     }
 
@@ -31,13 +31,15 @@ contract Noe is ERC721 {
 
     event AnimalToken(address _address); // Event pour qu'un vétérinaire crée un animal
 
-    struct Member { // Structure membres
+    struct Member {
+        // Structure membres
         string name; // Nom du membre
         uint256 tel; // Numéro de téléphone du membre
         bool isMember; // False par défaut, true si la pérsonne est déjà enregistré
     }
 
-    struct Animal { // Structure animales
+    struct Animal {
+        // Structure animales
         string name; // Nom de l'animal
         string dateBirth; // Date de naissance de l'animal
         string sexe; // Sexe de l'animal
@@ -45,7 +47,8 @@ contract Noe is ERC721 {
         Animals animals; // Enumération de chien chat furret
     }
 
-    struct Veterinary { // Structure vétérinaire
+    struct Veterinary {
+        // Structure vétérinaire
         string name; // Nom du vétérinaire
         uint256 tel; // Numéro de téléphone du vétérinaire
         bool diploma; // False par defaut, le super admin approuve le vétérinaire une fois les diplomes valide
@@ -74,7 +77,7 @@ contract Noe is ERC721 {
         require(member[msg.sender].isMember == true, "Vous n'étes pas membre");
         _;
     }
-    
+
     // This modifer, vérifie si le membre n'est pas déjà enregistré
     modifier onlyYetMember() {
         require(member[msg.sender].isMember == false, "Vous étes déjà membre");
@@ -86,7 +89,7 @@ contract Noe is ERC721 {
         require(veterinary[msg.sender].isVeterinary == true, "Vous n'étes pas vétérinaire");
         _;
     }
-    
+
     // This modifer, vérifie si le vétérinaire n'est pas déjà enregistré
     modifier yetOnlyVeterinary() {
         require(veterinary[msg.sender].isVeterinary == false, "Vous étes déjà vétérinaire");
@@ -102,7 +105,7 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
     /// @param _tel set le nom du téléphone dans la struct Member
-    function createMember(string memory _name, uint256 _tel) public onlyMember() {
+    function createMember(string memory _name, uint256 _tel) public onlyYetMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
@@ -111,7 +114,7 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
     /// @param _name set le nom du membre dans la struct vétérinaire
     /// @param _tel set le nom du téléphone dans la struct vétérinaire
-    function createVeterinary(string memory _name, uint256 _tel) public {
+    function createVeterinary(string memory _name, uint256 _tel) public yetOnlyVeterinary() {
         veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: false});
 
         emit VeterinaryCreated(msg.sender);
@@ -155,7 +158,13 @@ contract Noe is ERC721 {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(_member, newTokenId);
-        _animal[newTokenId] = Animal({name: _name, dateBirth: _dateBirth, sexe: _sexe, vaccin: _vaccin, animals: animals_});
+        _animal[newTokenId] = Animal({
+            name: _name,
+            dateBirth: _dateBirth,
+            sexe: _sexe,
+            vaccin: _vaccin,
+            animals: animals_
+        });
         emit AnimalToken(msg.sender); /// emit de l'event AnimalToken
         return newTokenId;
     }
