@@ -1,7 +1,7 @@
 const { contract, accounts } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 // const { web3 } = require('@openzeppelin/test-helpers/src/setup');
-// const { expect } = require('chai');
+const { expect } = require('chai');
 
 const Noe = contract.fromArtifact('Noe');
 
@@ -15,6 +15,7 @@ const isSameAnimal = (_animal1, animal1) => {
 };
 
 describe('Noe', function () {
+  this.timeout(0);
   const [owner, dev, user1, user2] = accounts;
   const NAME = 'Noe';
   const SYMBOL = 'NOE';
