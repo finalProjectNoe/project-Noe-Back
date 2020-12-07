@@ -76,6 +76,27 @@ Since we are using public nodes, we will need to sign all our transactions local
 % yarn add --dev @truffle/hdwallet-provider
 ```
 
+- ## Directory `test/`
+
+We will use the OpenZepplin test helpers and test environment.
+Install these packages as dev dependencies:
+
+```zsh
+yarn add --dev @openzeppelin/test-helpers @openzeppelin/test-environment mocha chai
+```
+
+We will no use `truffle test` for running tests since we switched to OpenZepplin test env.
+So make Mocha the entry point of the test suite by modifying your _package.json_:  
+add to _package.json_:
+
+```json
+"scripts": {
+    "test": "npx mocha --exit --recursive"
+},
+```
+
+we can now run test with `yarn test` command.`yarn test` will not compile your smart contracts. You will have to compile your smart contracts with`truffle compile` first.
+
 ### **Usage**
 
 Create a directory for your project and `cd` inside:
