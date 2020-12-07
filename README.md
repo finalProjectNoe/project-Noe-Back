@@ -65,6 +65,15 @@ Truffle v5.1.50 (core: 5.1.50)
 Solidity v0.5.16 (solc-js)
 Node v12.19.0
 Web3.js v1.2.9
+
+```
+
+- ## configuring networks
+
+Since we are using public nodes, we will need to sign all our transactions locally. We will use @truffle/hdwallet-provider to do this, setting it up with our mnemonic. We will also tell the provider how to connect to the test network by using the Infura endpoint.
+
+```zsh
+% yarn add --dev @truffle/hdwallet-provider
 ```
 
 ### **Usage**
