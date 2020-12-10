@@ -35,7 +35,7 @@ contract Noe is ERC721 {
 
     struct Member { // Structure membres
         string name; // Nom du membre
-        uint256 tel; // Numéro de téléphone du membre
+        string tel; // Numéro de téléphone du membre
         bool isMember; // False par défaut, true si la pérsonne est déjà enregistré
     }
 
@@ -49,7 +49,7 @@ contract Noe is ERC721 {
 
     struct Veterinary { // Structure vétérinaire
         string name; // Nom du vétérinaire
-        uint256 tel; // Numéro de téléphone du vétérinaire
+        string tel; // Numéro de téléphone du vétérinaire
         bool diploma; // False par defaut, le super admin approuve le vétérinaire une fois les diplomes valide
         bool isVeterinary; // False par defaut, il devient vétérinaire une fois que le super admin approuve
     }
@@ -102,7 +102,7 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
     /// @param _tel set le nom du téléphone dans la struct Member
-    function createMember(string memory _name, uint256 _tel) public onlyNotMember() {
+    function createMember(string memory _name, string memory _tel) public onlyNotMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
@@ -111,10 +111,14 @@ contract Noe is ERC721 {
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
     /// @param _name set le nom du membre dans la struct vétérinaire
     /// @param _tel set le nom du téléphone dans la struct vétérinaire
-    function createVeterinary(string memory _name, uint256 _tel) public onlyNotVeterinary() {
+    function createVeterinary(string memory _name, string memory _tel) public onlyNotVeterinary() {
         veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: false});
 
         emit VeterinaryCreated(msg.sender);
+    }
+
+    function getVeterinary(address _addr) public view {
+        veterinary[_addr];
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
