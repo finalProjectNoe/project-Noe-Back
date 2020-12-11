@@ -113,6 +113,10 @@ contract Noe is ERC721, Ownable {
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
     }
 
+    function getMember(address _addr) public view returns(Member memory) {
+       return member[_addr];
+    }
+
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
     /// @param _name set le nom du membre dans la struct vétérinaire
     /// @param _tel set le nom du téléphone dans la struct vétérinaire
@@ -122,8 +126,9 @@ contract Noe is ERC721, Ownable {
         emit VeterinaryCreated(msg.sender);
     }
 
-    function getVeterinary(address _addr) public view {
-        veterinary[_addr];
+    function getVeterinary(address _addr) public view returns(Veterinary memory) {
+       return veterinary[_addr];
+
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
