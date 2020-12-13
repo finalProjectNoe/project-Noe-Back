@@ -25,7 +25,7 @@ contract Noe is ERC721, Ownable {
 
     enum Animals {dog, cat, ferret} // Enumération
 
-    event MemberCreated(address _address); // Event pour la créaction d'un membre
+    event MemberCreated(address indexed _address); // Event pour la créaction d'un membre
 
     event VeterinaryCreated(address _address); // Event pour la créaction d'un vétérinaire
 
@@ -106,15 +106,15 @@ contract Noe is ERC721, Ownable {
 
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
-    /// @param _tel set le nom du téléphone dans la struct Member
+    /// @param _tel set le numéro de téléphone dans la struct Member
     function createMember(string memory _name, string memory _tel) public onlyNotMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
 
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
     }
 
-    function getMember(address _addr) public view returns(Member memory) {
-       return member[_addr];
+    function getMember(address _addr) public view returns (Member memory) {
+        return member[_addr];
     }
 
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
@@ -126,9 +126,8 @@ contract Noe is ERC721, Ownable {
         emit VeterinaryCreated(msg.sender);
     }
 
-    function getVeterinary(address _addr) public view returns(Veterinary memory) {
-       return veterinary[_addr];
-
+    function getVeterinary(address _addr) public view returns (Veterinary memory) {
+        return veterinary[_addr];
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme

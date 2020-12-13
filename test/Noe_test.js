@@ -16,15 +16,17 @@ const isSameAnimal = (_animal1, animal1) => {
 
 describe('Noe', function () {
   this.timeout(0);
-  const [owner, dev, user1, user2, veterinary1] = accounts;
+  const [owner, dev, user1, veterinary1] = accounts;
   const NAME = 'Noe';
   const SYMBOL = 'NOE';
   const animal1 = ['Murphy', '17/01/2020', 'Male', true, new BN(0)];
   const animal2 = ['Pixel', '17/01/2020', 'Male', true, new BN(1)];
-  // const animal3 = ['Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
-  // const animal4 = ['Patch', '17/01/2020', 'Male', true, new BN(1)];
+  const animal3 = ['Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
+  const animal4 = ['Patch', '17/01/2020', 'Male', true, new BN(1)];
   const userTest1 = ['Théo', '0668312485', true];
+  const userTest2 = ['Mika', '0102030405', true];
   const userVeterinary1 = ['Streed', '0668312485', false, false];
+  console.log(animal1);
 
   beforeEach(async function () {
     this.noe = await Noe.new(owner, { from: dev });
@@ -61,10 +63,21 @@ describe('Noe', function () {
     expect(isSameAnimal(_animal1, animal1)).to.be.true;
     expect(isSameAnimal(_animal2, animal2)).to.be.true;
   });
-  /* describe('mint() and ownerOf()', () => {
-    it('verifies ownership after mint', async function () {
-      await this.contract.mint('3');
-      assert.equal(await this.noe.ownerOf.call(3), user1);
-    });
-  }); */
+  it('mints NFT to user by calling animal()', async function () {
+    await this.noe.animalToken(userTest1, animal1, { from: owner });
+    await this.noe.animalToken(userTest2, animal2, { from: owner });
+    await this.noe.animalToken(userTest1, animal3, { from: owner });
+    await this.noe.animalToken(userTest1, animal4, { from: owner });
+    expect(await this.noe.balanceOf(userTest1), 'userTest1 wrong balance').to.be.a.bignumber.equal(new BN(3));
+    expect(await this.noe.balanceOf(userTest2), 'userTest2 wrong balance').to.be.a.bignumber.equal(new BN(1));
+    const balanceOfUserTest1 = await this.noe.balanceOf(userTest1);
+    const ids = [];
+    for (let i = 0; i < balanceOfUserTest1; ++i) {
+      ids.push(await this.noe.tokenOfOwnerByIndex(userTest1, i));
+    }
+    for (let i = 0; i < balanceOfUserTest1; ++i) {
+      expect(await this.noe.ownerOf(ids[i])).to.equal(userTest1);
+    }
+    expect(await this.noe.ownerOf(2)).to.equal(userTest2);
+  });
 });
