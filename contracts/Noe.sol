@@ -4,24 +4,24 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Un contrat de passeport animaliers
 /// @author Théo, Streed, Nico, Mika
 /// @notice Ce contrat permet d'associer des animaux à des utilisateurs via des vétérinaires
 
-contract Noe is ERC721 {
-    
+contract Noe is ERC721, Ownable {
     using Counters for Counters.Counter; // Utilisation du contract Counter d'openzeppelin importait en ligne 6
     Counters.Counter private _tokenIds; // Utilisation de la fonction Counter pour associer un _tokenIds
 
     address payable private _superAdmin; // Adresse de la personne qui déploie
 
     /// @notice Name and symbol of the non fungible token, as defined in ERC721.
-    constructor(address payable superAdmin) public ERC721("Noe", "NOE") { // Constucteur
+    constructor(address payable superAdmin) public ERC721("Noe", "NOE") {
+        // Constucteur
+        transferOwnership(superAdmin);
         _superAdmin = superAdmin;
     }
-    
-    uint256 private animalsCount; // Variable de statut pour compter le nombre d'animaux
 
     enum Animals {dog, cat, ferret} // Enumération
 
@@ -33,13 +33,15 @@ contract Noe is ERC721 {
 
     event AnimalToken(address indexed _address); // Event pour qu'un vétérinaire crée un animal
 
-    struct Member { // Structure membres
+    struct Member {
+        // Structure membres
         string name; // Nom du membre
         string tel; // Numéro de téléphone du membre
         bool isMember; // False par défaut, true si la pérsonne est déjà enregistré
     }
 
-    struct Animal { // Structure animales
+    struct Animal {
+        // Structure animales
         string name; // Nom de l'animal
         string dateBirth; // Date de naissance de l'animal
         string sexe; // Sexe de l'animal
@@ -47,21 +49,24 @@ contract Noe is ERC721 {
         Animals animals; // Enumération de chien chat furret
     }
 
-    struct Veterinary { // Structure vétérinaire
+    struct Veterinary {
+        // Structure vétérinaire
         string name; // Nom du vétérinaire
         string tel; // Numéro de téléphone du vétérinaire
         bool diploma; // False par defaut, le super admin approuve le vétérinaire une fois les diplomes valide
         bool isVeterinary; // False par defaut, il devient vétérinaire une fois que le super admin approuve
     }
 
+    uint256 public animalsCount; // Variable de statut pour compter le nombre d'animaux
+
     /// @dev Mapping de la struct Animal
     mapping(uint256 => Animal) private _animal;
 
     /// @dev Mapping de la struct Member
-    mapping(address => Member) private member;
+    mapping(address => Member) public member;
 
     /// @dev Mapping de la struct Veterinary
-    mapping(address => Veterinary) private veterinary;
+    mapping(address => Veterinary) public veterinary;
 
     // This modifer, vérifie si c'est le super admin
     modifier isSuperAdmin() {
@@ -74,7 +79,7 @@ contract Noe is ERC721 {
         require(member[msg.sender].isMember == true, "Vous n'étes pas membre");
         _;
     }
-    
+
     // This modifer, vérifie si le membre n'est pas déjà enregistré
     modifier onlyNotMember() {
         require(member[msg.sender].isMember == false, "Vous étes déjà membre");
@@ -107,7 +112,7 @@ contract Noe is ERC721 {
 
     /// @dev Permet de créer un nouveau membre en vérifiant qu'il n'est pas déjà membre
     /// @param _name set le nom du membre dans la struct Member
-    /// @param _tel set le nom du téléphone dans la struct Member
+    /// @param _tel set le numéro de téléphone dans la struct Member
     function createMember(string memory _name, string memory _tel) public onlyNotMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
@@ -135,11 +140,20 @@ contract Noe is ERC721 {
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
     /// @param _addr passe l'adresse du vétérinaire à approuver
-    function approveVeterinary(address _addr) public isSuperAdmin {
+    function approveVeterinary(address _addr) public isSuperAdmin returns (bool) {
         veterinary[_addr].diploma = true; // Set à true le diplome dans la struct Veterinary
         emit VeterinaryApprove(msg.sender); /// emit de l'event VeterinaryApprove
     }
 
+    /// @dev Permet de se connecter en tant que membre
+    /// @param _addr de connexion du membre
+    /// @param _name nom du membre
+    function connectionMember(address _addr, string memory _name) public onlyMember() {}
+
+    /// @dev Permet de se connecter en tant que vétérinaire
+    /// @param _addr de connexion du vétérinaire
+    /// @param _name nom du vétérinaire
+    function connectionVeterinary(address _addr, string memory _name) public onlyVeterinary() {}
 
     /// @dev Crée un animal et lui associe un token ERC721
     /// @param _member du membre à qui attibuer l'animal/token
@@ -161,14 +175,20 @@ contract Noe is ERC721 {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(_member, newTokenId);
-        _animal[newTokenId] = Animal({name: _name, dateBirth: _dateBirth, sexe: _sexe, vaccin: _vaccin, animals: animals_});
+        _animal[newTokenId] = Animal({
+            name: _name,
+            dateBirth: _dateBirth,
+            sexe: _sexe,
+            vaccin: _vaccin,
+            animals: animals_
+        });
         emit AnimalToken(msg.sender); /// emit de l'event AnimalToken
         return newTokenId;
     }
 
     /// @dev Permet de retrouver un animal en fonction de son numéro de token
     /// @param tokenId retrouver un animal via son numéro de token
-    function getAnimalById(uint256 tokenId) public view animalIdCheck(tokenId) returns (Animal memory) {
+    function getAnimalById(uint256 tokenId) public view returns (Animal memory) {
         require(_exists(tokenId), "NOE: Animal query for no nexistent token");
         return _animal[tokenId];
     }

@@ -19,12 +19,23 @@ describe('Noe', function () {
   const [owner, dev, user1, user2, veterinary1] = accounts;
   const NAME = 'Noe';
   const SYMBOL = 'NOE';
+<<<<<<< HEAD
   /* const animal1 = [user1, 'Murphy', '17/01/2020', 'Male', true, new BN(0)];
   const animal2 = [user2, 'Pixel', '17/01/2020', 'Male', true, new BN(1)];
   const animal3 = [user1, 'Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
   const animal4 = [user1, 'Patch', '17/01/2020', 'Male', true, new BN(1)]; */
   const userTest1 = ['Théo', '0668312485', true];
   const userVeterinary1 = ['Streed', '0668312485', false, true];
+=======
+  const animal1 = ['Murphy', '17/01/2020', 'Male', true, new BN(0)];
+  const animal2 = ['Pixel', '17/01/2020', 'Male', true, new BN(1)];
+  const animal3 = ['Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
+  const animal4 = ['Patch', '17/01/2020', 'Male', true, new BN(1)];
+  const userTest1 = ['Théo', '0668312485', true];
+  const userTest2 = ['Mika', '0102030405', true];
+  const userVeterinary1 = ['Streed', '0668312485', false, false];
+  console.log(animal1);
+>>>>>>> 4e41e0a45cdbeb07be50fc5d033864cda77fb945
 
   beforeEach(async function () {
     this.noe = await Noe.new(owner, { from: dev });
@@ -34,6 +45,9 @@ describe('Noe', function () {
   });
   it('A un symbol', async function () {
     expect(await this.noe.symbol()).to.equal(SYMBOL);
+  });
+  it('has owner', async function () {
+    expect(await this.noe.owner()).to.equal(owner);
   });
   it('Membre crée', async function () {
     await this.noe.createMember(userTest1[0], userTest1[1], { from: user1 });
@@ -72,5 +86,22 @@ describe('Noe', function () {
       expect(await this.noe.ownerOf(ids[i])).to.equal(user1);
     }
     expect(await this.noe.ownerOf(2)).to.equal(user2);
+  });
+  it('mints NFT to user by calling animal()', async function () {
+    await this.noe.animalToken(userTest1, animal1, { from: owner });
+    await this.noe.animalToken(userTest2, animal2, { from: owner });
+    await this.noe.animalToken(userTest1, animal3, { from: owner });
+    await this.noe.animalToken(userTest1, animal4, { from: owner });
+    expect(await this.noe.balanceOf(userTest1), 'userTest1 wrong balance').to.be.a.bignumber.equal(new BN(3));
+    expect(await this.noe.balanceOf(userTest2), 'userTest2 wrong balance').to.be.a.bignumber.equal(new BN(1));
+    const balanceOfUserTest1 = await this.noe.balanceOf(userTest1);
+    const ids = [];
+    for (let i = 0; i < balanceOfUserTest1; ++i) {
+      ids.push(await this.noe.tokenOfOwnerByIndex(userTest1, i));
+    }
+    for (let i = 0; i < balanceOfUserTest1; ++i) {
+      expect(await this.noe.ownerOf(ids[i])).to.equal(userTest1);
+    }
+    expect(await this.noe.ownerOf(2)).to.equal(userTest2);
   });
 });
