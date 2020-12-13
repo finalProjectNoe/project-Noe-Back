@@ -25,13 +25,13 @@ contract Noe is ERC721 {
 
     enum Animals {dog, cat, ferret} // Enumération
 
-    event MemberCreated(address _address); // Event pour la créaction d'un membre
+    event MemberCreated(address indexed _address); // Event pour la créaction d'un membre
 
-    event VeterinaryCreated(address _address); // Event pour la créaction d'un vétérinaire
+    event VeterinaryCreated(address indexed _address); // Event pour la créaction d'un vétérinaire
 
-    event VeterinaryApprove(address _address); // Event pour que superAdmin approuve un vétérinaire
+    event VeterinaryApprove(address indexed _address); // Event pour que superAdmin approuve un vétérinaire
 
-    event AnimalToken(address _address); // Event pour qu'un vétérinaire crée un animal
+    event AnimalToken(address indexed _address); // Event pour qu'un vétérinaire crée un animal
 
     struct Member { // Structure membres
         string name; // Nom du membre
@@ -80,10 +80,16 @@ contract Noe is ERC721 {
         require(member[msg.sender].isMember == false, "Vous étes déjà membre");
         _;
     }
-
+    
     // This modifer, vérifie si le vétérinaire est déjà enregistré
     modifier onlyVeterinary() {
         require(veterinary[msg.sender].isVeterinary == true, "Vous n'étes pas vétérinaire");
+        _;
+    }
+
+    // This modifer, vérifie si le vétérinaire est déjà enregistré et approuvé
+    modifier onlyVeterinaryApprove() {
+        require(veterinary[msg.sender].diploma == true, "Vous n'étes pas un vétérinaire approuvé");
         _;
     }
     
@@ -104,10 +110,11 @@ contract Noe is ERC721 {
     /// @param _tel set le nom du téléphone dans la struct Member
     function createMember(string memory _name, string memory _tel) public onlyNotMember() {
         member[msg.sender] = Member({name: _name, tel: _tel, isMember: true});
-
         emit MemberCreated(msg.sender); /// emit de l'event MemberCreated
     }
 
+    /// @dev Permet de récuperer les infos
+    /// @param _addr récupere l'infos via l'adresse du membre
     function getMember(address _addr) public view returns(Member memory) {
        return member[_addr];
     }
@@ -116,22 +123,20 @@ contract Noe is ERC721 {
     /// @param _name set le nom du membre dans la struct vétérinaire
     /// @param _tel set le nom du téléphone dans la struct vétérinaire
     function createVeterinary(string memory _name, string memory _tel) public onlyNotVeterinary() {
-        veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: false});
-
+        veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: true});
         emit VeterinaryCreated(msg.sender);
     }
-
+    
+    /// @dev Permet de récuperer les infos
+    /// @param _addr récupere l'infos via l'adresse du vétérinaire
     function getVeterinary(address _addr) public view returns(Veterinary memory) {
        return veterinary[_addr];
-
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
     /// @param _addr passe l'adresse du vétérinaire à approuver
     function approveVeterinary(address _addr) public isSuperAdmin {
         veterinary[_addr].diploma = true; // Set à true le diplome dans la struct Veterinary
-        veterinary[_addr].isVeterinary = true; // Set à true, il devient vétérinaire dans la struct Veterinary
-
         emit VeterinaryApprove(msg.sender); /// emit de l'event VeterinaryApprove
     }
 
@@ -151,7 +156,7 @@ contract Noe is ERC721 {
         string memory _sexe,
         bool _vaccin,
         Animals animals_
-    ) public onlyVeterinary() returns (uint256) {
+    ) public onlyVeterinaryApprove() returns (uint256) {
         animalsCount++;
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
