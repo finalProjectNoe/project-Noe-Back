@@ -1,3 +1,4 @@
+/* eslint-disable */
 const { contract, accounts } = require('@openzeppelin/test-environment');
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 // const { web3 } = require('@openzeppelin/test-helpers/src/setup');
@@ -16,92 +17,55 @@ const Noe = contract.fromArtifact('Noe');
 
 describe('Noe', function () {
   this.timeout(0);
-  const [owner, dev, user1, user2, veterinary1] = accounts;
-  const NAME = 'Noe';
-  const SYMBOL = 'NOE';
-<<<<<<< HEAD
-  /* const animal1 = [user1, 'Murphy', '17/01/2020', 'Male', true, new BN(0)];
+  const [owner, dev, user1, user2, veterinary1] = accounts; // metamask accounts
+  const NAME = 'Noe'; // Nom du contrat
+  const SYMBOL = 'NOE'; // Symbol du projet
+
+  // Animal test
+  const animal1 = [user1, 'Murphy', '17/01/2020', 'Male', true, new BN(0)];
   const animal2 = [user2, 'Pixel', '17/01/2020', 'Male', true, new BN(1)];
   const animal3 = [user1, 'Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
-  const animal4 = [user1, 'Patch', '17/01/2020', 'Male', true, new BN(1)]; */
+  const animal4 = [user1, 'Patch', '17/01/2020', 'Male', true, new BN(1)];
+
+  // Member test
   const userTest1 = ['Théo', '0668312485', true];
+  const userTest2 = ['Nico', '0668312485', true];
+
+  // Veterinaire test
   const userVeterinary1 = ['Streed', '0668312485', false, true];
-=======
-  const animal1 = ['Murphy', '17/01/2020', 'Male', true, new BN(0)];
-  const animal2 = ['Pixel', '17/01/2020', 'Male', true, new BN(1)];
-  const animal3 = ['Gospelle', '17/01/2020', 'Femelle', true, new BN(2)];
-  const animal4 = ['Patch', '17/01/2020', 'Male', true, new BN(1)];
-  const userTest1 = ['Théo', '0668312485', true];
-  const userTest2 = ['Mika', '0102030405', true];
-  const userVeterinary1 = ['Streed', '0668312485', false, false];
-  console.log(animal1);
->>>>>>> 4e41e0a45cdbeb07be50fc5d033864cda77fb945
 
   beforeEach(async function () {
-    this.noe = await Noe.new(owner, { from: dev });
+    this.noe = await Noe.new(owner, { from: dev }); // Appel du constructor du smart contract
   });
   it('A un nom', async function () {
-    expect(await this.noe.name()).to.equal(NAME);
+    expect(await this.noe.name()).to.equal(NAME); // Test pour vérifier si le contrat à un nom
   });
   it('A un symbol', async function () {
-    expect(await this.noe.symbol()).to.equal(SYMBOL);
+    expect(await this.noe.symbol()).to.equal(SYMBOL); // Test pour vérifier si le contrat à un symbol
   });
   it('has owner', async function () {
-    expect(await this.noe.owner()).to.equal(owner);
+    expect(await this.noe.owner()).to.equal(owner); // Test pour vérifier si le contrat à un owner
   });
   it('Membre crée', async function () {
-    await this.noe.createMember(userTest1[0], userTest1[1], { from: user1 });
-    const userNew1 = await this.noe.getMember(user1);
+    await this.noe.createMember(userTest1[0], userTest1[1], { from: user1 }); // Test de création du membre
+    const userNew1 = await this.noe.getMember(user1); // Variable pour récupérer le membre crée
+    // Test des deux variables équivalentes
     expect(userNew1[0]).to.equal(userTest1[0]);
     expect(userNew1[1]).to.equal(userTest1[1]);
     expect(userNew1[2]).to.equal(userTest1[2]);
   });
   it('Vétérinaire crée', async function () {
-    await this.noe.createVeterinary(userVeterinary1[0], userVeterinary1[1], { from: veterinary1 });
-    const vet1 = await this.noe.getVeterinary(veterinary1);
+    await this.noe.createVeterinary(userVeterinary1[0], userVeterinary1[1], { from: veterinary1 }); // Test de création du vététinaire
+    const vet1 = await this.noe.getVeterinary(veterinary1); // Variable pour récupérer le vétérinaire crée
+    // Test des deux variables équivalentes
     expect(vet1[0]).to.be.equal(userVeterinary1[0]);
     expect(vet1[1]).to.be.equal(userVeterinary1[1]);
     expect(vet1[2]).to.be.equal(userVeterinary1[2]);
     expect(vet1[3]).to.be.equal(userVeterinary1[3]);
   });
   it('Approves veterinary', async function () {
-    await this.noe.approveVeterinary(veterinary1, { from: owner });
-    const vet1 = await this.noe.getVeterinary(veterinary1);
-    // eslint-disable-next-line
-    expect(vet1.diploma).to.be.true;
-  });
-  it('mints NFT to user by calling animalToken()', async function () {
-    // eslint-disable-next-line
-    await expectRevert(this.noe.animalToken(user1, 'Murphy', '17/01/2020', 'Male', true, new BN(0), { from: veterinary1 }), 'caller is not the vet1');
-    await this.noe.animalToken(user1, 'Murphy', '17/01/2020', 'Male', true, new BN(0), { from: veterinary1 });
-    await this.noe.animalToken(user2, 'Pixel', '17/01/2020', 'Male', true, new BN(1), { from: veterinary1 });
-    expect(await this.noe.balanceOf(user1), 'user1 wrong balance').to.be.a.bignumber.equal(new BN(3));
-    expect(await this.noe.balanceOf(user2), 'user2 wrong balance').to.be.a.bignumber.equal(new BN(1));
-    const balanceOfUser1 = await this.noe.balanceOf(user1);
-    const ids = [];
-    for (let i = 0; i < balanceOfUser1; ++i) {
-      ids.push(await this.noe.tokenOfOwnerByIndex(user1, i));
-    }
-    for (let i = 0; i < balanceOfUser1; ++i) {
-      expect(await this.noe.ownerOf(ids[i])).to.equal(user1);
-    }
-    expect(await this.noe.ownerOf(2)).to.equal(user2);
-  });
-  it('mints NFT to user by calling animal()', async function () {
-    await this.noe.animalToken(userTest1, animal1, { from: owner });
-    await this.noe.animalToken(userTest2, animal2, { from: owner });
-    await this.noe.animalToken(userTest1, animal3, { from: owner });
-    await this.noe.animalToken(userTest1, animal4, { from: owner });
-    expect(await this.noe.balanceOf(userTest1), 'userTest1 wrong balance').to.be.a.bignumber.equal(new BN(3));
-    expect(await this.noe.balanceOf(userTest2), 'userTest2 wrong balance').to.be.a.bignumber.equal(new BN(1));
-    const balanceOfUserTest1 = await this.noe.balanceOf(userTest1);
-    const ids = [];
-    for (let i = 0; i < balanceOfUserTest1; ++i) {
-      ids.push(await this.noe.tokenOfOwnerByIndex(userTest1, i));
-    }
-    for (let i = 0; i < balanceOfUserTest1; ++i) {
-      expect(await this.noe.ownerOf(ids[i])).to.equal(userTest1);
-    }
-    expect(await this.noe.ownerOf(2)).to.equal(userTest2);
+    await this.noe.approveVeterinary(veterinary1, { from: owner }); // Test pour approuver le vétérinaire par le owner
+    const vet1 = await this.noe.getVeterinary(veterinary1); // Variable pour récupérer le vétérinaire
+    expect(vet1.diploma).to.be.true; // Vérifie que le diplome est à true
   });
 });
