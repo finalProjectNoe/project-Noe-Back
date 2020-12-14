@@ -4,13 +4,12 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Un contrat de passeport animaliers
 /// @author Théo, Streed, Nico, Mika
 /// @notice Ce contrat permet d'associer des animaux à des utilisateurs via des vétérinaires
 
-contract Noe is ERC721, Ownable {
+contract Noe is ERC721 {
     using Counters for Counters.Counter; // Utilisation du contract Counter d'openzeppelin importait en ligne 6
     Counters.Counter private _tokenIds; // Utilisation de la fonction Counter pour associer un _tokenIds
 
@@ -19,7 +18,6 @@ contract Noe is ERC721, Ownable {
     /// @notice Name and symbol of the non fungible token, as defined in ERC721.
     constructor(address payable superAdmin) public ERC721("Noe", "NOE") {
         // Constucteur
-        transferOwnership(superAdmin);
         _superAdmin = superAdmin;
     }
 
@@ -85,7 +83,7 @@ contract Noe is ERC721, Ownable {
         require(member[msg.sender].isMember == false, "Vous étes déjà membre");
         _;
     }
-    
+
     // This modifer, vérifie si le vétérinaire est déjà enregistré
     modifier onlyVeterinary() {
         require(veterinary[msg.sender].isVeterinary == true, "Vous n'étes pas vétérinaire");
@@ -97,7 +95,7 @@ contract Noe is ERC721, Ownable {
         require(veterinary[msg.sender].diploma == true, "Vous n'étes pas un vétérinaire approuvé");
         _;
     }
-    
+
     // This modifer, vérifie si le vétérinaire n'est pas déjà enregistré
     modifier onlyNotVeterinary() {
         require(veterinary[msg.sender].isVeterinary == false, "Vous étes déjà vétérinaire");
@@ -119,9 +117,8 @@ contract Noe is ERC721, Ownable {
     }
 
     /// @dev Permet de récuperer les infos
-    /// @param _addr récupere l'infos via l'adresse du membre
-    function getMember(address _addr) public view returns(Member memory) {
-       return member[_addr];
+    function getMember(address _addr) public view returns (Member memory) {
+        return member[_addr];
     }
 
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
@@ -131,29 +128,18 @@ contract Noe is ERC721, Ownable {
         veterinary[msg.sender] = Veterinary({name: _name, tel: _tel, diploma: false, isVeterinary: true});
         emit VeterinaryCreated(msg.sender);
     }
-    
+
     /// @dev Permet de récuperer les infos
-    /// @param _addr récupere l'infos via l'adresse du vétérinaire
-    function getVeterinary(address _addr) public view returns(Veterinary memory) {
-       return veterinary[_addr];
+    function getVeterinary(address _addr) public view returns (Veterinary memory) {
+        return veterinary[_addr];
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
     /// @param _addr passe l'adresse du vétérinaire à approuver
-    function approveVeterinary(address _addr) public isSuperAdmin returns (bool) {
+    function approveVeterinary(address _addr) public isSuperAdmin {
         veterinary[_addr].diploma = true; // Set à true le diplome dans la struct Veterinary
         emit VeterinaryApprove(msg.sender); /// emit de l'event VeterinaryApprove
     }
-
-    /// @dev Permet de se connecter en tant que membre
-    /// @param _addr de connexion du membre
-    /// @param _name nom du membre
-    function connectionMember(address _addr, string memory _name) public onlyMember() {}
-
-    /// @dev Permet de se connecter en tant que vétérinaire
-    /// @param _addr de connexion du vétérinaire
-    /// @param _name nom du vétérinaire
-    function connectionVeterinary(address _addr, string memory _name) public onlyVeterinary() {}
 
     /// @dev Crée un animal et lui associe un token ERC721
     /// @param _member du membre à qui attibuer l'animal/token
