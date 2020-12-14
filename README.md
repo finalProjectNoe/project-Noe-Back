@@ -9,7 +9,7 @@ Le projet Noé est une DAPP créée à partir de l'ERC721
 
 ## **Pour commencer**
 
-Entrez ici les instructions pour bien débuter avec votre projet...
+Pour bien débuter ce projet il est important d'avoir des notions avec React, ainsi que des connaissances sur la blockchain Ethereum et la création de DAPP.
 
 ### **Pré-requis**
 
@@ -131,6 +131,7 @@ Ensuite vous pouvez montrer ce que vous obtenez au final...
 ```zsh
  % yarn start
 ```
+![site](https://media.joomeo.com/small/5fd79f9eac243.jpg)
 
 ## Fabriqué avec
 
