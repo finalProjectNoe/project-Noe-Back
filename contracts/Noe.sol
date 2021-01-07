@@ -117,8 +117,8 @@ contract Noe is ERC721 {
     }
 
     /// @dev Permet de récuperer les infos
-    function getMember(address _addr) public view returns (Member memory) {
-        return member[_addr];
+    function getMember() public view returns (Member memory) {
+        return member[msg.sender];
     }
 
     /// @dev Permet de créer un compte vétérinaire sous réserve de validation du diplôme par le super admin et la fonction approveVeterinary
@@ -130,8 +130,8 @@ contract Noe is ERC721 {
     }
 
     /// @dev Permet de récuperer les infos
-    function getVeterinary(address _addr) public view returns (Veterinary memory) {
-        return veterinary[_addr];
+    function getVeterinary() public view returns (Veterinary memory) {
+        return veterinary[msg.sender];
     }
 
     /// @dev Permet de valider le compte vétérinaire après vérification du diplôme
