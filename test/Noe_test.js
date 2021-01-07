@@ -11,10 +11,10 @@ describe('Noe', function () {
   const userTest1 = ['Théo', '0668312485', true];
   const userVeterinary1 = ['Streed', '0668312485', false, true];
 
-  const animal1 = ['Murphy', '', '', bool, enum];
-  const animal2 = ['Aegis', new BN(1), new BN(0), new BN(15)];
-  const animal3 = ['Excalibur', new BN(0), new BN(30), new BN(5)];
-  const animal4 = ['Helm of darkness', new BN(1), new BN(4), new BN(45)];
+  const animal1 = ['Murphy', '17/01/2020', 'Male', true, new BN(1)];
+  const animal2 = ['Pixel', '01/12/2019', 'Male', true, new BN(0)];
+  const animal3 = ['Baloo', '17/01/2020', 'Male', true, new BN(1)];
+  const animal4 = ['Murphy', '17/01/2020', 'Male', true, new BN(0)];
 
   beforeEach(async function () {
     this.noe = await Noe.new(owner, { from: dev });
@@ -52,7 +52,16 @@ describe('Noe', function () {
     expect(vet1.diploma).to.be.true;
   });
 
-  it('Animal créer', async function () {
-    await expectRevert(this.noe.animalToken(user1, ));
+  it('Mints NFT animal to user by calling animalToken()', async function () {
+    await this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], { from: veterinary1 });
+    expect(await this.noe.balanceOf(user1), 'user wrong balance').to.be.a.bignumber.equal(new BN(1));
+    const balanceOfUser1 = await this.noe.balanceOf(user1);
+    const ids = [];
+    for (let i = 0; i < balanceOfUser1; ++i) {
+      ids.push(await this.noe.tokenOfOwnerByIndex(user1, i));
+    }
+    for (let i = 0; i < balanceOfUser1; ++i) {
+      expect(await this.noe.ownerOf(ids[i])).to.equal(user1);
+    }
   });
 });
