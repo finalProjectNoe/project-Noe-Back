@@ -1,10 +1,24 @@
+/* eslint-disable */
 const { contract, accounts } = require('@openzeppelin/test-environment');
-const { expectRevert, BN } = require('@openzeppelin/test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+
 const Noe = contract.fromArtifact('Noe');
+
+const isSameAnimal = (_animal1, animal1) => {
+  return (
+    new BN(_animal1[0]).eq(animal1[0]) &&
+    _animal1 === animal1[1] &&
+    _animal1 === animal1[2] &&
+    _animal1 === animal1[3] &&
+    _animal1 === animal1[4] &&
+    _animal1 === animal1[5] 
+    )
+};
 
 describe('Noe', function () {
   this.timeout(0);
+
   const [owner, dev, user1, veterinary1] = accounts;
   const NAME = 'Noe';
   const SYMBOL = 'NOE';
@@ -52,9 +66,32 @@ describe('Noe', function () {
     expect(vet1.diploma).to.be.true;
   });
 
+  it('increment tokenId by calling animalToken()', async function () {
+    await this.noe.approveVeterinary(veterinary1, { from: owner });
+    await this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], animal1[4], { from: veterinary1 });
+    expect(await this.noe.tokenOfOwnerByIndex(user1, new BN(0)), 'id should be 1').to.be.a.bignumber.equal(new BN(1));
+    await this.noe.animalToken(user1, animal2[0], animal2[1], animal2[2], animal2[3], animal2[4], { from: veterinary1 });
+    expect(await this.noe.tokenOfOwnerByIndex(user1, new BN(1)), 'id should be 2').to.be.a.bignumber.equal(new BN(2));
+  });
+
+  it('set tokenId to animal', async function () {
+    await this.noe.approveVeterinary(veterinary1, { from: owner });
+
+    await this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], animal1[4], { from: veterinary1 });
+    await this.noe.animalToken(user1, animal2[0], animal2[1], animal2[2], animal2[3], animal2[4], { from: veterinary1 });
+
+    const _animal1 = await this.noe.getAnimalById(new BN(1));
+    const _animal2 = await this.noe.getAnimalById(new BN(2));
+
+    expect(isSameAnimal(_animal1, animal1)).to.be.true;
+    expect(isSameAnimal(_animal2, animal2)).to.be.true;
+  })
+
   it('Mints NFT animal to user by calling animalToken()', async function () {
-    await this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], { from: veterinary1 });
-    expect(await this.noe.balanceOf(user1), 'user wrong balance').to.be.a.bignumber.equal(new BN(1));
+    await this.noe.approveVeterinary(veterinary1, { from: owner });
+    await this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], animal1[4], { from: veterinary1 });
+    await this.noe.animalToken(user1, animal2[0], animal2[1], animal2[2], animal2[3], animal2[4], { from: veterinary1 });
+    expect(await this.noe.balanceOf(user1), 'user wrong balance').to.be.a.bignumber.equal(new BN(2));
     const balanceOfUser1 = await this.noe.balanceOf(user1);
     const ids = [];
     for (let i = 0; i < balanceOfUser1; ++i) {
