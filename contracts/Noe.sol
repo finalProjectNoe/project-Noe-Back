@@ -4,12 +4,13 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Un contrat de passeport animaliers
 /// @author Théo, Streed, Nico, Mika
 /// @notice Ce contrat permet d'associer des animaux à des utilisateurs via des vétérinaires
 
-contract Noe is ERC721 {
+contract Noe is ERC721, Ownable {
     using Counters for Counters.Counter; // Utilisation du contract Counter d'openzeppelin importait en ligne 6
     Counters.Counter private _tokenIds; // Utilisation de la fonction Counter pour associer un _tokenIds
 
@@ -18,7 +19,7 @@ contract Noe is ERC721 {
     /// @notice Name and symbol of the non fungible token, as defined in ERC721.
     constructor(address payable superAdmin) public ERC721("Noe", "NOE") {
         // Constucteur
-        _superAdmin = superAdmin;
+        transferFrom(superAdmin);
     }
 
     enum Animals {dog, cat, ferret} // Enumération

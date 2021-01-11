@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { contract, accounts } = require('@openzeppelin/test-environment');
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { web3 } = require('@openzeppelin/test-helpers/src/setup')
 const { expect } = require('chai');
 
 const Noe = contract.fromArtifact('Noe');
@@ -59,10 +60,13 @@ describe('Noe', function () {
     expect(vet1[3]).to.be.equal(userVeterinary1[3]);
   });
 
+  it('revert if animalToken() not called by veterinary', async function () {
+    await expectRevert(this.noe.animalToken(user1, animal1[0], animal1[1], animal1[2], animal1[3], animal1[4], { from: dev }), 'Ownable caller is not the veterinary');
+  });
+
   it('Approves veterinary', async function () {
     await this.noe.approveVeterinary(veterinary1, { from: owner });
     const vet1 = await this.noe.getVeterinary({ from: veterinary1 });
-    /* eslint-disable-next-line */
     expect(vet1.diploma).to.be.true;
   });
 
